@@ -18,9 +18,12 @@ import android.widget.TextView;
 
 public class NoteListFragment extends Fragment {
 
-    public static final String CURRENT_NOTE = "CurrentNote";
-    private Note currentNote;
     private boolean isLandscape;
+    private Note currentNote;
+    public static final String CURRENT_NOTE = "CurrentNote";
+
+    public NoteListFragment(){
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -31,60 +34,61 @@ public class NoteListFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        initList(view);
+        initNoteList(view);
     }
 
-    private void initList(View view) {
-        LinearLayout layoutView  = (LinearLayout) view;
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        isLandscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+
+        if (isLandscape){
+            showLandNote(currentNote);
+        }
+
+        if (savedInstanceState != null){
+            currentNote = savedInstanceState.getParcelable(CURRENT_NOTE);
+        } else {
+            currentNote = new Note(0, getResources().getStringArray(R.array.notes_test)[0]);
+        }
+    }
+
+
+    private void initNoteList(View view) {
+        LinearLayout linearLayout = (LinearLayout) view;
         String[] notes = getResources().getStringArray(R.array.notes_test);
         for (int i = 0; i < notes.length; i++) {
             String note = notes[i];
-            TextView tv = new TextView(getContext());
-            tv.setText(note);
-            tv.setTextSize(20);
-            layoutView.addView(tv);
-            final int fi = i;
-            tv.setOnClickListener(new View.OnClickListener() {
+            TextView textView = new TextView(getContext());
+            textView.setText(note);
+            textView.setTextSize(30);
+            linearLayout.addView(textView);
+
+            final int currentIndex = i;
+            textView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    currentNote = new Note(fi, getResources().getStringArray(R.array.notes_test)[fi]);
+                    currentNote = new Note(currentIndex, getResources().getStringArray(R.array.notes_test)[currentIndex]);
                     showNote(currentNote);
+
                 }
             });
         }
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        isLandscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-
-        if (savedInstanceState != null) {
-            currentNote = savedInstanceState.getParcelable(CURRENT_NOTE);
-        } else {
-            currentNote = new Note(0, getResources().getStringArray(R.array.notes_test)[0]);
-        }
-
+    private void showNote(Note note){
         if (isLandscape) {
-            showLandNote(currentNote);
+            showLandNote(note);
+        } else {
+            showPortNote(note);
         }
     }
 
-    private void showNote(Note currentNote){
-        if (isLandscape){
-            showLandNote(currentNote);
-        } else {
-            showPortNote(currentNote);
-        }
-    }
-    
-    private void showLandNote(Note currentNote){
-        NoteFragment detail = NoteFragment.newInstance(currentNote);
-        FragmentManager fragmentManager = requireActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.note, detail);
-        fragmentTransaction.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_FADE);
-        fragmentTransaction.commit();
+    private void showLandNote(Note currentNote) {
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.current_note, NoteFragment.newInstance(currentNote))
+                .commit();
     }
 
     private void showPortNote(Note currentNote) {
@@ -95,8 +99,9 @@ public class NoteListFragment extends Fragment {
     }
 
     @Override
-    public void onSaveInstanceState(Bundle outState) {
+    public void onSaveInstanceState(@NonNull Bundle outState) {
         outState.putParcelable(CURRENT_NOTE, currentNote);
         super.onSaveInstanceState(outState);
+
     }
 }

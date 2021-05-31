@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
     android:orientation="horizontal">
 
     <fragment
@@ -9,10 +10,11 @@
         android:name="ru.mmn.noteapp.NoteListFragment"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_weight="1"/>
+        android:layout_weight="1"
+        tools:layout="@layout/fragment_note_list"/>
 
     <FrameLayout
-        android:id="@+id/note"
+        android:id="@+id/current_note"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_weight="1"/>

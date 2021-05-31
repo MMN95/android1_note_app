@@ -18,9 +18,11 @@ public class NoteActivity extends AppCompatActivity {
         }
 
         if (savedInstanceState == null) {
-            NoteFragment details = new NoteFragment();
-            details.setArguments(getIntent().getExtras());
-            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, details).commit();
+            NoteFragment noteFragment = new NoteFragment();
+            noteFragment.setArguments(getIntent().getExtras());
+            getSupportFragmentManager().
+                    beginTransaction().
+                    replace(R.id.fragment_container, noteFragment).commit();
         }
     }
 }
