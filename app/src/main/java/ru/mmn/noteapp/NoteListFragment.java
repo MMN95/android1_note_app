@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -55,17 +56,18 @@ public class NoteListFragment extends Fragment {
 
 
     private void initNoteList(View view) {
-        LinearLayout linearLayout = (LinearLayout) view;
+        LinearLayout layoutView = (LinearLayout) view;
         String[] notes = getResources().getStringArray(R.array.notes_test);
+        LayoutInflater layoutInflater = getLayoutInflater();
         for (int i = 0; i < notes.length; i++) {
             String note = notes[i];
-            TextView textView = new TextView(getContext());
-            textView.setText(note);
-            textView.setTextSize(30);
-            linearLayout.addView(textView);
+            View item = layoutInflater.inflate(R.layout.item, layoutView, false);
+            TextView noteTitleView = item.findViewById(R.id.noteTitle);
+            noteTitleView.setText(note);
+            layoutView.addView(item);
 
             final int currentIndex = i;
-            textView.setOnClickListener(new View.OnClickListener() {
+            noteTitleView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     currentNote = new Note(currentIndex, getResources().getStringArray(R.array.notes_test)[currentIndex]);
