@@ -35,7 +35,7 @@ public class NoteListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_note_list, container, false);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_view_notes);
-        String[] data = getResources().getStringArray(R.array.notes_test);
+        String[] data = getResources().getStringArray(R.array.note_titles);
         initRecyclerView(recyclerView, data);
         return view;
     }
@@ -74,14 +74,14 @@ public class NoteListFragment extends Fragment {
         if (savedInstanceState != null){
             currentNote = savedInstanceState.getParcelable(CURRENT_NOTE);
         } else {
-            currentNote = new Note(0, getResources().getStringArray(R.array.notes_test)[0]);
+            currentNote = new Note(0, getResources().getStringArray(R.array.note_titles)[0]);
         }
     }
 
 
     private void initNoteList(View view) {
         LinearLayout layoutView = (LinearLayout) view;
-        String[] notes = getResources().getStringArray(R.array.notes_test);
+        String[] notes = getResources().getStringArray(R.array.note_titles);
         LayoutInflater layoutInflater = getLayoutInflater();
         for (int i = 0; i < notes.length; i++) {
             String note = notes[i];
@@ -94,7 +94,7 @@ public class NoteListFragment extends Fragment {
             noteTitleView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    currentNote = new Note(currentIndex, getResources().getStringArray(R.array.notes_test)[currentIndex]);
+                    currentNote = new Note(currentIndex, getResources().getStringArray(R.array.note_titles)[currentIndex]);
                     showNote(currentNote);
 
                 }

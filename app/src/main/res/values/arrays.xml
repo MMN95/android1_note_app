@@ -1,8 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string-array name="notes_test">
-        <item>Тестовая заметка 1</item>
-        <item>Тестовая заметка 2</item>
-        <item>Тестовая заметка 3</item>
+    <string-array name="note_titles">
+        <item>Заметка 1</item>
+        <item>Заметка 2</item>
+        <item>Заметка 3</item>
+    </string-array>
+
+    <string-array name="note_description">
+        <item>Описание заметки 1</item>
+        <item>Описание заметки 2</item>
+        <item>Описание заметки 3</item>
     </string-array>
 </resources>
