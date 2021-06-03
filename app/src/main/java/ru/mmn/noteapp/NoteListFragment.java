@@ -7,15 +7,15 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import android.text.Layout;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class NoteListFragment extends Fragment {
 
@@ -26,10 +26,34 @@ public class NoteListFragment extends Fragment {
     public NoteListFragment(){
     }
 
+    public static NoteListFragment newInstance(){
+        return new NoteListFragment();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_note_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_note_list, container, false);
+        RecyclerView recyclerView = view.findViewById(R.id.recycler_view_notes);
+        String[] data = getResources().getStringArray(R.array.notes_test);
+        initRecyclerView(recyclerView, data);
+        return view;
+    }
+
+    private void initRecyclerView(RecyclerView recyclerView, String[] data) {
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(layoutManager);
+        final NoteListAdapter adapter = new NoteListAdapter(data);
+        recyclerView.setAdapter(adapter);
+
+        adapter.setOnItemClickListener(new NoteListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Toast.makeText(getContext(), String.format("%s - %d", ((TextView)view).getText(), position), Toast.LENGTH_SHORT).show();
+
+            }
+        });
     }
 
     @Override
