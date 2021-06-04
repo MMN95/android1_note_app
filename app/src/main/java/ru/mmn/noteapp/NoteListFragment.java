@@ -35,12 +35,12 @@ public class NoteListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_note_list, container, false);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_view_notes);
-        String[] data = getResources().getStringArray(R.array.note_titles);
+       NoteSource data = new NoteSourceImpl(getResources()).init();
         initRecyclerView(recyclerView, data);
         return view;
     }
 
-    private void initRecyclerView(RecyclerView recyclerView, String[] data) {
+    private void initRecyclerView(RecyclerView recyclerView, NoteSource data) {
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
@@ -50,7 +50,7 @@ public class NoteListFragment extends Fragment {
         adapter.setOnItemClickListener(new NoteListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                Toast.makeText(getContext(), String.format("%s - %d", ((TextView)view).getText(), position), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), String.format("Позиция - %d", position), Toast.LENGTH_SHORT).show();
 
             }
         });
@@ -74,7 +74,7 @@ public class NoteListFragment extends Fragment {
         if (savedInstanceState != null){
             currentNote = savedInstanceState.getParcelable(CURRENT_NOTE);
         } else {
-            currentNote = new Note(0, getResources().getStringArray(R.array.note_titles)[0]);
+            currentNote = new Note(getResources().getStringArray(R.array.note_titles)[0], getResources().getStringArray(R.array.note_description)[0]);
         }
     }
 
@@ -94,7 +94,7 @@ public class NoteListFragment extends Fragment {
             noteTitleView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    currentNote = new Note(currentIndex, getResources().getStringArray(R.array.note_titles)[currentIndex]);
+                    currentNote = new Note(getResources().getStringArray(R.array.note_titles)[0], getResources().getStringArray(R.array.note_description)[0]);
                     showNote(currentNote);
 
                 }

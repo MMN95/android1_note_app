@@ -4,33 +4,27 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class Note implements Parcelable {
-    private int index;
+
     private String title;
-//    private String description;
+    private String description;
     //TODO private Date date;
 
-    public Note(int index, String title){
-        this.index = index;
+    public Note(String title, String description){
         this.title = title;
-//        this.description = description;
+        this.description = description;
     }
 
     protected Note(Parcel in){
-        index = in.readInt();
         title = in.readString();
-//        description = in.readString();
+        description = in.readString();
     }
 
     public String getTitle() {
         return title;
     }
 
-//    public String getDescription() {
-//        return description;
-//    }
-
-    public int getIndex() {
-        return index;
+    public String getDescription() {
+        return description;
     }
 
     @Override
@@ -41,8 +35,7 @@ public class Note implements Parcelable {
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(getTitle());
-//        dest.writeString(getDescription());
-        dest.writeInt(getIndex());
+        dest.writeString(getDescription());
     }
 
     public static final Creator<Note> CREATOR = new Creator<Note>() {
