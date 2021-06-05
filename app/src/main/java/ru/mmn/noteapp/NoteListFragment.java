@@ -7,6 +7,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -46,6 +47,10 @@ public class NoteListFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         final NoteListAdapter adapter = new NoteListAdapter(data);
         recyclerView.setAdapter(adapter);
+
+        DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL);
+        itemDecoration.setDrawable(getResources().getDrawable(R.drawable.separator,null));
+        recyclerView.addItemDecoration(itemDecoration);
 
         adapter.setOnItemClickListener(new NoteListAdapter.OnItemClickListener() {
             @Override
