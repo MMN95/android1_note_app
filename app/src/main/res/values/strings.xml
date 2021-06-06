@@ -9,4 +9,6 @@
     <string name="fragment_navigation">" "</string>
     <string name="add">Добавить заметку</string>
     <string name="clear">Очистить список</string>
+    <string name="update">Изменить</string>
+    <string name="delete">Удалить</string>
 </resources>

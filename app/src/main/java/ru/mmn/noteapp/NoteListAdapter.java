@@ -7,16 +7,25 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.ViewHolder> {
 
+    private final Fragment fragment;
     private final static String TAG = "NoteListAdapter";
-    private NoteSource dataSource;
+    private final NoteSource dataSource;
     private OnItemClickListener itemClickListener;
 
-    public NoteListAdapter(NoteSource dataSource){
+    public int getMenuPosition() {
+        return menuPosition;
+    }
+
+    private int menuPosition;
+
+    public NoteListAdapter(NoteSource dataSource, Fragment fragment){
         this.dataSource = dataSource;
+        this.fragment = fragment;
     }
 
 
@@ -50,10 +59,11 @@ public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.ViewHo
         private TextView title;
         private TextView description;
 
-        public ViewHolder(View itemView){
+        public ViewHolder(final View itemView){
             super(itemView);
             title = itemView.findViewById(R.id.noteTitle);
             description = itemView.findViewById(R.id.noteDescription);
+            registerContextMenu(itemView);
 
             title.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -63,7 +73,33 @@ public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.ViewHo
                     }
                 }
             });
+
+            title.setOnLongClickListener(new View.OnLongClickListener() {
+                @Override
+                public boolean onLongClick(View v) {
+                    menuPosition = getLayoutPosition();
+                    itemView.showContextMenu(10,10);
+                    return true;
+                }
+            });
         }
+
+        private void registerContextMenu(View itemView) {
+            if (fragment != null){
+                itemView.setOnLongClickListener(new View.OnLongClickListener() {
+                    @Override
+                    public boolean onLongClick(View v) {
+                        menuPosition = getLayoutPosition();
+                        return false;
+                    }
+                });
+
+
+
+                fragment.registerForContextMenu(itemView);
+            }
+        }
+
         public void setData(Note note){
             title.setText(note.getTitle());
             description.setText(note.getDescription());

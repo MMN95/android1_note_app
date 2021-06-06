@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -55,6 +56,30 @@ public class NoteListFragment extends Fragment {
     }
 
     @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = requireActivity().getMenuInflater();
+        inflater.inflate(R.menu.note_context_menu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        int position = adapter.getMenuPosition();
+        switch (item.getItemId()){
+            case R.id.action_update:
+                data.updateNote(position, new Note("Кадр" + position,
+                        data.getNote(position).getDescription()));
+                adapter.notifyItemChanged(position);
+                return true;
+            case R.id.action_delete:
+                data.deleteNote(position);
+                adapter.notifyItemRemoved(position);
+                return true;
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_add:
@@ -80,26 +105,23 @@ public class NoteListFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new NoteListAdapter(data);
+        adapter = new NoteListAdapter(data, this);
         recyclerView.setAdapter(adapter);
 
         DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL);
         itemDecoration.setDrawable(getResources().getDrawable(R.drawable.separator,null));
         recyclerView.addItemDecoration(itemDecoration);
 
-        adapter.setOnItemClickListener(new NoteListAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View view, int position) {
-                currentNote = new Note(getResources().getStringArray(R.array.note_titles)[0], getResources().getStringArray(R.array.note_description)[0]);
-                showNote(currentNote);
-            }
+        adapter.setOnItemClickListener((view, position) -> {
+            currentNote = new Note(getResources().getStringArray(R.array.note_titles)[0], getResources().getStringArray(R.array.note_description)[0]);
+            showNote(currentNote);
         });
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        initNoteList(view);
+       // initNoteList(view);
     }
 
     @Override
@@ -131,13 +153,10 @@ public class NoteListFragment extends Fragment {
             layoutView.addView(item);
 
             final int currentIndex = i;
-            noteTitleView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    currentNote = new Note(getResources().getStringArray(R.array.note_titles)[0], getResources().getStringArray(R.array.note_description)[0]);
-                    showNote(currentNote);
+            noteTitleView.setOnClickListener(v -> {
+                currentNote = new Note(getResources().getStringArray(R.array.note_titles)[0], getResources().getStringArray(R.array.note_description)[0]);
+                showNote(currentNote);
 
-                }
             });
         }
     }
