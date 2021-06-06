@@ -7,6 +7,7 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -24,6 +25,7 @@ import android.widget.Toast;
 
 public class NoteListFragment extends Fragment {
 
+    private static final int DEFAULT_DURATION = 1000;
     private NoteSource data;
     private NoteListAdapter adapter;
     private RecyclerView recyclerView;
@@ -85,7 +87,7 @@ public class NoteListFragment extends Fragment {
             case R.id.action_add:
                 data.addNote(new Note("Заголовок" + data.size(), "Описание" + data.size()));
                 adapter.notifyItemInserted(data.size() - 1);
-                recyclerView.scrollToPosition(data.size() - 1);
+                recyclerView.smoothScrollToPosition(data.size() - 1);
                 return true;
             case R.id.action_clear:
                 data.clearNoteList();
@@ -111,6 +113,11 @@ public class NoteListFragment extends Fragment {
         DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL);
         itemDecoration.setDrawable(getResources().getDrawable(R.drawable.separator,null));
         recyclerView.addItemDecoration(itemDecoration);
+
+        DefaultItemAnimator animator = new DefaultItemAnimator();
+        animator.setAddDuration(DEFAULT_DURATION);
+        animator.setRemoveDuration(DEFAULT_DURATION);
+        recyclerView.setItemAnimator(animator);
 
         adapter.setOnItemClickListener((view, position) -> {
             currentNote = new Note(getResources().getStringArray(R.array.note_titles)[0], getResources().getStringArray(R.array.note_description)[0]);
