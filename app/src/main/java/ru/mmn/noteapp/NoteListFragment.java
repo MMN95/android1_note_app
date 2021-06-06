@@ -12,6 +12,9 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -20,6 +23,9 @@ import android.widget.Toast;
 
 public class NoteListFragment extends Fragment {
 
+    private NoteSource data;
+    private NoteListAdapter adapter;
+    private RecyclerView recyclerView;
     private boolean isLandscape;
     private Note currentNote;
     public static final String CURRENT_NOTE = "CurrentNote";
@@ -36,16 +42,45 @@ public class NoteListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_note_list, container, false);
         RecyclerView recyclerView = view.findViewById(R.id.recycler_view_notes);
-       NoteSource data = new NoteSourceImpl(getResources()).init();
-        initRecyclerView(recyclerView, data);
+        data = new NoteSourceImpl(getResources()).init();
+        initView(view);
+        setHasOptionsMenu(true);
         return view;
     }
 
-    private void initRecyclerView(RecyclerView recyclerView, NoteSource data) {
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.notelist_menu, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.action_add:
+                data.addNote(new Note("Заголовок" + data.size(), "Описание" + data.size()));
+                adapter.notifyItemInserted(data.size() - 1);
+                recyclerView.scrollToPosition(data.size() - 1);
+                return true;
+            case R.id.action_clear:
+                data.clearNoteList();
+                adapter.notifyDataSetChanged();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void initView(View view) {
+        recyclerView = view.findViewById(R.id.recycler_view_notes);
+        data = new NoteSourceImpl(getResources()).init();
+        initRecyclerView();
+    }
+
+    private void initRecyclerView() {
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
-        final NoteListAdapter adapter = new NoteListAdapter(data);
+        adapter = new NoteListAdapter(data);
         recyclerView.setAdapter(adapter);
 
         DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL);
@@ -55,8 +90,8 @@ public class NoteListFragment extends Fragment {
         adapter.setOnItemClickListener(new NoteListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View view, int position) {
-                Toast.makeText(getContext(), String.format("Позиция - %d", position), Toast.LENGTH_SHORT).show();
-
+                currentNote = new Note(getResources().getStringArray(R.array.note_titles)[0], getResources().getStringArray(R.array.note_description)[0]);
+                showNote(currentNote);
             }
         });
     }

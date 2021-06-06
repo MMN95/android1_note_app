@@ -7,4 +7,6 @@
     <string name="settings">Настройки</string>
     <string name="about">О приложении</string>
     <string name="fragment_navigation">" "</string>
+    <string name="add">Добавить заметку</string>
+    <string name="clear">Очистить список</string>
 </resources>

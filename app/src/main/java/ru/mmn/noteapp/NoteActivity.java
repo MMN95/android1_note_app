@@ -22,7 +22,7 @@ public class NoteActivity extends AppCompatActivity {
             noteFragment.setArguments(getIntent().getExtras());
             getSupportFragmentManager().
                     beginTransaction().
-                    replace(R.id.fragment_container, noteFragment).commit();
+                    replace(R.id.note_fragment_container, noteFragment).commit();
         }
     }
 }
