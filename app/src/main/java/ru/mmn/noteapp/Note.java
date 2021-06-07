@@ -3,28 +3,34 @@ package ru.mmn.noteapp;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Date;
+
 public class Note implements Parcelable {
 
-    private String title;
-    private String description;
-    //TODO private Date date;
+    private final String title;
+    private final String description;
+    private final Date date;
 
-    public Note(String title, String description){
+    public Note(String title, String description, Date date){
         this.title = title;
         this.description = description;
+        this.date = date;
     }
 
     protected Note(Parcel in){
         title = in.readString();
         description = in.readString();
+        date = new Date(in.readLong());
     }
 
     public String getTitle() {
         return title;
     }
-
     public String getDescription() {
         return description;
+    }
+    public Date getDate() {
+        return date;
     }
 
     @Override
@@ -36,6 +42,7 @@ public class Note implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeString(getTitle());
         dest.writeString(getDescription());
+        dest.writeLong(date.getTime());
     }
 
     public static final Creator<Note> CREATOR = new Creator<Note>() {

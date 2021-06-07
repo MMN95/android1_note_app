@@ -11,13 +11,24 @@
         android:id="@+id/noteTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/noteTitleSize"/>
+        android:textSize="@dimen/noteTitleSize"
+        android:textColor="@color/black"
+        android:layout_gravity="top|center"/>
 
     <TextView
         android:id="@+id/noteDescription"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/noteDescriptionSize"/>
+        android:textSize="@dimen/noteDescriptionSize"
+        android:textColor="@color/black"/>
+
+    <TextView
+        android:id="@+id/noteDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/noteDateSize"
+        android:textColor="@color/black"
+        android:layout_gravity="bottom" />
 
 </androidx.cardview.widget.CardView>
 

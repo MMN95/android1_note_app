@@ -1,5 +1,6 @@
 package ru.mmn.noteapp;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -25,13 +26,17 @@ import android.widget.Toast;
 
 public class NoteListFragment extends Fragment {
 
+    public static final String CURRENT_NOTE = "CurrentNote";
     private static final int DEFAULT_DURATION = 1000;
+
     private NoteSource data;
     private NoteListAdapter adapter;
     private RecyclerView recyclerView;
     private boolean isLandscape;
     private Note currentNote;
-    public static final String CURRENT_NOTE = "CurrentNote";
+    private Navigation navigation;
+    private Publisher publisher;
+    private boolean moveToLastPosition;
 
     public NoteListFragment(){
     }
@@ -41,24 +46,42 @@ public class NoteListFragment extends Fragment {
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        data = new NoteSourceImpl(getResources()).init();
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_note_list, container, false);
-        RecyclerView recyclerView = view.findViewById(R.id.recycler_view_notes);
-        data = new NoteSourceImpl(getResources()).init();
         initView(view);
         setHasOptionsMenu(true);
         return view;
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        super.onCreateOptionsMenu(menu, inflater);
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        MainActivity activity = (MainActivity) context;
+        navigation = activity.getNavigation();
+        publisher = activity.getPublisher();
+    }
+
+    @Override
+    public void onDetach() {
+        navigation = null;
+        publisher = null;
+        super.onDetach();
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.notelist_menu, menu);
     }
 
     @Override
-    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+    public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
         MenuInflater inflater = requireActivity().getMenuInflater();
         inflater.inflate(R.menu.note_context_menu, menu);
@@ -69,9 +92,11 @@ public class NoteListFragment extends Fragment {
         int position = adapter.getMenuPosition();
         switch (item.getItemId()){
             case R.id.action_update:
-                data.updateNote(position, new Note("Кадр" + position,
-                        data.getNote(position).getDescription()));
-                adapter.notifyItemChanged(position);
+                navigation.addFragment(NoteFragment.newInstance(data.getNote(position)), true);
+                publisher.subscribe(note -> {
+                    data.updateNote(position, note);
+                    adapter.notifyItemChanged(position);
+                });
                 return true;
             case R.id.action_delete:
                 data.deleteNote(position);
@@ -85,9 +110,12 @@ public class NoteListFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()){
             case R.id.action_add:
-                data.addNote(new Note("Заголовок" + data.size(), "Описание" + data.size()));
-                adapter.notifyItemInserted(data.size() - 1);
-                recyclerView.smoothScrollToPosition(data.size() - 1);
+                navigation.addFragment(NoteFragment.newInstance(), true);
+                publisher.subscribe(note -> {
+                    data.addNote(note);
+                    adapter.notifyItemInserted(data.size() - 1);
+                    moveToLastPosition = true;
+                });
                 return true;
             case R.id.action_clear:
                 data.clearNoteList();
@@ -99,7 +127,6 @@ public class NoteListFragment extends Fragment {
 
     private void initView(View view) {
         recyclerView = view.findViewById(R.id.recycler_view_notes);
-        data = new NoteSourceImpl(getResources()).init();
         initRecyclerView();
     }
 
@@ -119,75 +146,19 @@ public class NoteListFragment extends Fragment {
         animator.setRemoveDuration(DEFAULT_DURATION);
         recyclerView.setItemAnimator(animator);
 
+        if (moveToLastPosition) {
+            recyclerView.smoothScrollToPosition(data.size() - 1);
+            moveToLastPosition = false;
+        }
+
         adapter.setOnItemClickListener((view, position) -> {
-            currentNote = new Note(getResources().getStringArray(R.array.note_titles)[0], getResources().getStringArray(R.array.note_description)[0]);
-            showNote(currentNote);
+            Toast.makeText(getContext(), String.format("Позиция - %d", position), Toast.LENGTH_SHORT).show();
         });
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-       // initNoteList(view);
-    }
-
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        isLandscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-
-        if (isLandscape){
-            showLandNote(currentNote);
-        }
-
-        if (savedInstanceState != null){
-            currentNote = savedInstanceState.getParcelable(CURRENT_NOTE);
-        } else {
-            currentNote = new Note(getResources().getStringArray(R.array.note_titles)[0], getResources().getStringArray(R.array.note_description)[0]);
-        }
-    }
-
-
-    private void initNoteList(View view) {
-        LinearLayout layoutView = (LinearLayout) view;
-        String[] notes = getResources().getStringArray(R.array.note_titles);
-        LayoutInflater layoutInflater = getLayoutInflater();
-        for (int i = 0; i < notes.length; i++) {
-            String note = notes[i];
-            View item = layoutInflater.inflate(R.layout.item, layoutView, false);
-            TextView noteTitleView = item.findViewById(R.id.noteTitle);
-            noteTitleView.setText(note);
-            layoutView.addView(item);
-
-            final int currentIndex = i;
-            noteTitleView.setOnClickListener(v -> {
-                currentNote = new Note(getResources().getStringArray(R.array.note_titles)[0], getResources().getStringArray(R.array.note_description)[0]);
-                showNote(currentNote);
-
-            });
-        }
-    }
-
-    private void showNote(Note note){
-        if (isLandscape) {
-            showLandNote(note);
-        } else {
-            showPortNote(note);
-        }
-    }
-
-    private void showLandNote(Note currentNote) {
-        requireActivity().getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.current_note, NoteFragment.newInstance(currentNote))
-                .commit();
-    }
-
-    private void showPortNote(Note currentNote) {
-        Intent intent = new Intent();
-        intent.setClass(getActivity(), NoteActivity.class);
-        intent.putExtra(NoteFragment.ARG_NOTE, currentNote);
-        startActivity(intent);
     }
 
     @Override
@@ -196,4 +167,45 @@ public class NoteListFragment extends Fragment {
         super.onSaveInstanceState(outState);
 
     }
+
+    //TODO landscape orientation
+//    @Override
+//    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+//        super.onActivityCreated(savedInstanceState);
+//        isLandscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+//
+//        if (isLandscape){
+//            showLandNote(currentNote);
+//        }
+//
+//        if (savedInstanceState != null){
+//            currentNote = savedInstanceState.getParcelable(CURRENT_NOTE);
+//        } else {
+//            currentNote = new Note(currentNote.getTitle(), currentNote.getDescription(), currentNote.getDate());
+//            showNote(currentNote);
+//        }
+//    }
+//
+//    private void showNote(Note note){
+//        if (isLandscape) {
+//            showLandNote(note);
+//        } else {
+//            showPortNote(note);
+//        }
+//    }
+//
+//    private void showLandNote(Note currentNote) {
+//        requireActivity().getSupportFragmentManager()
+//                .beginTransaction()
+//                .replace(R.id.note_fragment_land, NoteFragment.newInstance(currentNote))
+//                .commit();
+//    }
+//
+//    private void showPortNote(Note currentNote) {
+//        Intent intent = new Intent();
+//        intent.setClass(getActivity(), NoteActivity.class);
+//        intent.putExtra(NoteFragment.ARG_NOTE, currentNote);
+//        startActivity(intent);
+//    }
+
 }

@@ -3,11 +3,12 @@ package ru.mmn.noteapp;
 import android.content.res.Resources;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 public class NoteSourceImpl implements NoteSource{
-    private List<Note> dataSource;
-    private Resources resources;
+    private final List<Note> dataSource;
+    private final Resources resources;
 
     public NoteSourceImpl(Resources resources){
         dataSource = new ArrayList<>();
@@ -19,7 +20,7 @@ public class NoteSourceImpl implements NoteSource{
         String[] descriptions = resources.getStringArray(R.array.note_description);
 
         for (int i = 0; i < descriptions.length; i++) {
-            dataSource.add(new Note(titles[i], descriptions[i]));
+            dataSource.add(new Note(titles[i], descriptions[i], Calendar.getInstance().getTime()));
         }
         return this;
     }
