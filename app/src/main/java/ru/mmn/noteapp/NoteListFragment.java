@@ -7,14 +7,16 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class NoteListFragment extends Fragment {
 
@@ -25,10 +27,38 @@ public class NoteListFragment extends Fragment {
     public NoteListFragment(){
     }
 
+    public static NoteListFragment newInstance(){
+        return new NoteListFragment();
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_note_list, container, false);
+        View view = inflater.inflate(R.layout.fragment_note_list, container, false);
+        RecyclerView recyclerView = view.findViewById(R.id.recycler_view_notes);
+       NoteSource data = new NoteSourceImpl(getResources()).init();
+        initRecyclerView(recyclerView, data);
+        return view;
+    }
+
+    private void initRecyclerView(RecyclerView recyclerView, NoteSource data) {
+        recyclerView.setHasFixedSize(true);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        recyclerView.setLayoutManager(layoutManager);
+        final NoteListAdapter adapter = new NoteListAdapter(data);
+        recyclerView.setAdapter(adapter);
+
+        DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL);
+        itemDecoration.setDrawable(getResources().getDrawable(R.drawable.separator,null));
+        recyclerView.addItemDecoration(itemDecoration);
+
+        adapter.setOnItemClickListener(new NoteListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Toast.makeText(getContext(), String.format("Позиция - %d", position), Toast.LENGTH_SHORT).show();
+
+            }
+        });
     }
 
     @Override
@@ -49,26 +79,27 @@ public class NoteListFragment extends Fragment {
         if (savedInstanceState != null){
             currentNote = savedInstanceState.getParcelable(CURRENT_NOTE);
         } else {
-            currentNote = new Note(0, getResources().getStringArray(R.array.notes_test)[0]);
+            currentNote = new Note(getResources().getStringArray(R.array.note_titles)[0], getResources().getStringArray(R.array.note_description)[0]);
         }
     }
 
 
     private void initNoteList(View view) {
-        LinearLayout linearLayout = (LinearLayout) view;
-        String[] notes = getResources().getStringArray(R.array.notes_test);
+        LinearLayout layoutView = (LinearLayout) view;
+        String[] notes = getResources().getStringArray(R.array.note_titles);
+        LayoutInflater layoutInflater = getLayoutInflater();
         for (int i = 0; i < notes.length; i++) {
             String note = notes[i];
-            TextView textView = new TextView(getContext());
-            textView.setText(note);
-            textView.setTextSize(30);
-            linearLayout.addView(textView);
+            View item = layoutInflater.inflate(R.layout.item, layoutView, false);
+            TextView noteTitleView = item.findViewById(R.id.noteTitle);
+            noteTitleView.setText(note);
+            layoutView.addView(item);
 
             final int currentIndex = i;
-            textView.setOnClickListener(new View.OnClickListener() {
+            noteTitleView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    currentNote = new Note(currentIndex, getResources().getStringArray(R.array.notes_test)[currentIndex]);
+                    currentNote = new Note(getResources().getStringArray(R.array.note_titles)[0], getResources().getStringArray(R.array.note_description)[0]);
                     showNote(currentNote);
 
                 }
