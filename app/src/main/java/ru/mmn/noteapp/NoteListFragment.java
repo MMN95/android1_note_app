@@ -1,6 +1,8 @@
 package ru.mmn.noteapp;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -123,9 +125,7 @@ public class NoteListFragment extends Fragment {
                 });
                 return true;
             case R.id.action_delete:
-                int deletePosition = adapter.getMenuPosition();
-                data.deleteNote(deletePosition);
-                adapter.notifyItemRemoved(deletePosition);
+                showWarning();
                 return true;
             case R.id.action_clear:
                 data.clearNoteList();
@@ -133,6 +133,23 @@ public class NoteListFragment extends Fragment {
                 return true;
         }
         return false;
+    }
+
+    private void showWarning() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle(R.string.warning)
+                .setMessage(R.string.warning_text)
+                .setCancelable(false)
+                .setPositiveButton(R.string.warning_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        int deletePosition = adapter.getMenuPosition();
+                        data.deleteNote(deletePosition);
+                        adapter.notifyItemRemoved(deletePosition);
+                    }
+                });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 
     private void initView(View view) {
