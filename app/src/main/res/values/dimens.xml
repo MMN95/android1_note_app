@@ -2,4 +2,5 @@
 <resources>
     <dimen name="noteTitleSize">30sp</dimen>
     <dimen name="noteDescriptionSize">20sp</dimen>
+    <dimen name="noteDateSize">15sp</dimen>
 </resources>

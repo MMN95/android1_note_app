@@ -5,21 +5,32 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
+import java.text.SimpleDateFormat;
 
 public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.ViewHolder> {
 
     private final static String TAG = "NoteListAdapter";
-    private NoteSource dataSource;
+
+    private final Fragment fragment;
+    private final NoteSource dataSource;
     private OnItemClickListener itemClickListener;
 
-    public NoteListAdapter(NoteSource dataSource){
+    public int getMenuPosition() {
+        return menuPosition;
+    }
+
+    private int menuPosition;
+
+    public NoteListAdapter(NoteSource dataSource, Fragment fragment){
         this.dataSource = dataSource;
+        this.fragment = fragment;
     }
 
 
+    @NonNull
     @Override
     public NoteListAdapter.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item, parent, false);
@@ -47,26 +58,45 @@ public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.ViewHo
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        private TextView title;
-        private TextView description;
 
-        public ViewHolder(View itemView){
+        private final TextView title;
+        private final TextView description;
+        private final TextView date;
+
+        public ViewHolder(final View itemView){
             super(itemView);
             title = itemView.findViewById(R.id.noteTitle);
             description = itemView.findViewById(R.id.noteDescription);
+            date = itemView.findViewById(R.id.noteDate);
+            registerContextMenu(itemView);
 
-            title.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (itemClickListener != null) {
-                        itemClickListener.onItemClick(v, getAdapterPosition());
-                    }
+            title.setOnClickListener(v -> {
+                if (itemClickListener != null) {
+                    itemClickListener.onItemClick(v, getAdapterPosition());
                 }
             });
+
+            title.setOnLongClickListener(v -> {
+                menuPosition = getLayoutPosition();
+                itemView.showContextMenu(10,10);
+                return true;
+            });
         }
+
+        private void registerContextMenu(View itemView) {
+            if (fragment != null){
+                itemView.setOnLongClickListener(v -> {
+                    menuPosition = getLayoutPosition();
+                    return false;
+                });
+                fragment.registerForContextMenu(itemView);
+            }
+        }
+
         public void setData(Note note){
             title.setText(note.getTitle());
             description.setText(note.getDescription());
+            date.setText(new SimpleDateFormat("dd-MM-yy").format(note.getDate()));
         }
 
     }

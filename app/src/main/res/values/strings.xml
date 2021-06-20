@@ -1,10 +1,13 @@
 <resources>
     <string name="app_name">NoteApp</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="note_title">Название заметки</string>
     <string name="note_date">Дата заметки</string>
     <string name="settings">Настройки</string>
     <string name="about">О приложении</string>
     <string name="fragment_navigation">" "</string>
+    <string name="add">Добавить заметку</string>
+    <string name="clear">Очистить список</string>
+    <string name="update">Изменить</string>
+    <string name="delete">Удалить</string>
 </resources>
