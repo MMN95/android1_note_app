@@ -10,6 +10,7 @@ public class Note implements Parcelable {
     private final String title;
     private final String description;
     private final Date date;
+    private String id;
 
     public Note(String title, String description, Date date){
         this.title = title;
@@ -31,6 +32,12 @@ public class Note implements Parcelable {
     }
     public Date getDate() {
         return date;
+    }
+    public String getId() {
+        return id;
+    }
+    public void setId(String id) {
+        this.id = id;
     }
 
     @Override

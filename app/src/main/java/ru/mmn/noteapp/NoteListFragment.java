@@ -1,6 +1,8 @@
 package ru.mmn.noteapp;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.os.Bundle;
@@ -36,7 +38,7 @@ public class NoteListFragment extends Fragment {
     private Note currentNote;
     private Navigation navigation;
     private Publisher publisher;
-    private boolean moveToLastPosition;
+    private boolean moveToFirstPosition;
 
     public NoteListFragment(){
     }
@@ -46,17 +48,18 @@ public class NoteListFragment extends Fragment {
     }
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        data = new NoteSourceImpl(getResources()).init();
-    }
-
-    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_note_list, container, false);
         initView(view);
         setHasOptionsMenu(true);
+        data = new NoteSourceFirebaseImpl().init(new NoteSourceResponse() {
+            @Override
+            public void initialized(NoteSource noteSource) {
+                adapter.notifyDataSetChanged();
+            }
+        });
+        adapter.setDataSource(data);
         return view;
     }
 
@@ -89,40 +92,65 @@ public class NoteListFragment extends Fragment {
 
     @Override
     public boolean onContextItemSelected(MenuItem item) {
-        int position = adapter.getMenuPosition();
-        switch (item.getItemId()){
-            case R.id.action_update:
-                navigation.addFragment(NoteFragment.newInstance(data.getNote(position)), true);
-                publisher.subscribe(note -> {
-                    data.updateNote(position, note);
-                    adapter.notifyItemChanged(position);
-                });
-                return true;
-            case R.id.action_delete:
-                data.deleteNote(position);
-                adapter.notifyItemRemoved(position);
-                return true;
-        }
-        return super.onContextItemSelected(item);
+        return onItemSelected(item.getItemId()) || super.onContextItemSelected(item);
     }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
+        return onItemSelected(item.getItemId()) || super.onOptionsItemSelected(item);
+    }
+
+    private boolean onItemSelected(int menuItemId){
+        switch (menuItemId){
             case R.id.action_add:
                 navigation.addFragment(NoteFragment.newInstance(), true);
-                publisher.subscribe(note -> {
-                    data.addNote(note);
-                    adapter.notifyItemInserted(data.size() - 1);
-                    moveToLastPosition = true;
+                publisher.subscribe(new Observer() {
+                    @Override
+                    public void updateNoteData(Note note) {
+                        data.addNote(note);
+                        adapter.notifyItemInserted(data.size() - 1);
+                        moveToFirstPosition = true;
+                    }
                 });
+                return true;
+            case R.id.action_update:
+                final int updatePosition = adapter.getMenuPosition();
+                navigation.addFragment(NoteFragment.newInstance(data.getNote(updatePosition)), true);
+                publisher.subscribe(new Observer() {
+                    @Override
+                    public void updateNoteData(Note note) {
+                        data.updateNote(updatePosition, note);
+                        adapter.notifyItemChanged(updatePosition);
+                    }
+                });
+                return true;
+            case R.id.action_delete:
+                showWarning();
                 return true;
             case R.id.action_clear:
                 data.clearNoteList();
                 adapter.notifyDataSetChanged();
                 return true;
         }
-        return super.onOptionsItemSelected(item);
+        return false;
+    }
+
+    private void showWarning() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+        builder.setTitle(R.string.warning)
+                .setMessage(R.string.warning_text)
+                .setCancelable(false)
+                .setPositiveButton(R.string.warning_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        int deletePosition = adapter.getMenuPosition();
+                        data.deleteNote(deletePosition);
+                        adapter.notifyItemRemoved(deletePosition);
+                    }
+                });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+
     }
 
     private void initView(View view) {
@@ -134,7 +162,7 @@ public class NoteListFragment extends Fragment {
         recyclerView.setHasFixedSize(true);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         recyclerView.setLayoutManager(layoutManager);
-        adapter = new NoteListAdapter(data, this);
+        adapter = new NoteListAdapter(this);
         recyclerView.setAdapter(adapter);
 
         DividerItemDecoration itemDecoration = new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL);
@@ -146,9 +174,9 @@ public class NoteListFragment extends Fragment {
         animator.setRemoveDuration(DEFAULT_DURATION);
         recyclerView.setItemAnimator(animator);
 
-        if (moveToLastPosition) {
-            recyclerView.smoothScrollToPosition(data.size() - 1);
-            moveToLastPosition = false;
+        if (moveToFirstPosition && data.size() > 0) {
+            recyclerView.scrollToPosition(0);
+            moveToFirstPosition = false;
         }
 
         adapter.setOnItemClickListener((view, position) -> {

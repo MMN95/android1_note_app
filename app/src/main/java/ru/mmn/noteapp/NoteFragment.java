@@ -64,7 +64,12 @@ public class NoteFragment extends Fragment {
         String title = this.title.getText().toString();
         String description = this.description.getText().toString();
         Date date = getDateFromDatePicker();
-        return new Note(title, description, date);
+        if (note != null) {
+            Note answer;
+            answer = new Note(title, description, date);
+            answer.setId(note.getId());
+            return answer;
+        } else return new Note(title, description, date);
     }
 
     private Date getDateFromDatePicker() {

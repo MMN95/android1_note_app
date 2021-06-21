@@ -10,4 +10,7 @@
     <string name="clear">Очистить список</string>
     <string name="update">Изменить</string>
     <string name="delete">Удалить</string>
+    <string name="warning">Внимание!</string>
+    <string name="warning_text">Сейчас заметка будет удалена!</string>
+    <string name="warning_button">Хорошо</string>
 </resources>

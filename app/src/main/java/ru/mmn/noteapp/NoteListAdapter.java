@@ -15,17 +15,11 @@ public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.ViewHo
     private final static String TAG = "NoteListAdapter";
 
     private final Fragment fragment;
-    private final NoteSource dataSource;
+    private NoteSource dataSource;
     private OnItemClickListener itemClickListener;
-
-    public int getMenuPosition() {
-        return menuPosition;
-    }
-
     private int menuPosition;
 
-    public NoteListAdapter(NoteSource dataSource, Fragment fragment){
-        this.dataSource = dataSource;
+    public NoteListAdapter(Fragment fragment){
         this.fragment = fragment;
     }
 
@@ -47,6 +41,14 @@ public class NoteListAdapter extends RecyclerView.Adapter<NoteListAdapter.ViewHo
     @Override
     public int getItemCount() {
         return dataSource.size();
+    }
+    public int getMenuPosition() {
+        return menuPosition;
+    }
+
+    public void setDataSource(NoteSource dataSource) {
+        this.dataSource = dataSource;
+        notifyDataSetChanged();
     }
 
     public void setOnItemClickListener(OnItemClickListener itemClickListener) {
