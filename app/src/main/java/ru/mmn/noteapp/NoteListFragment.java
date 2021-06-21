@@ -149,7 +149,10 @@ public class NoteListFragment extends Fragment {
                     }
                 });
         AlertDialog alertDialog = builder.create();
-        alertDialog.show();
+        alertDialog.show()
+       
+
+
 
     }
 
@@ -197,43 +200,43 @@ public class NoteListFragment extends Fragment {
     }
 
     //TODO landscape orientation
-//    @Override
-//    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-//        super.onActivityCreated(savedInstanceState);
-//        isLandscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
-//
-//        if (isLandscape){
-//            showLandNote(currentNote);
-//        }
-//
-//        if (savedInstanceState != null){
-//            currentNote = savedInstanceState.getParcelable(CURRENT_NOTE);
-//        } else {
-//            currentNote = new Note(currentNote.getTitle(), currentNote.getDescription(), currentNote.getDate());
-//            showNote(currentNote);
-//        }
-//    }
-//
-//    private void showNote(Note note){
-//        if (isLandscape) {
-//            showLandNote(note);
-//        } else {
-//            showPortNote(note);
-//        }
-//    }
-//
-//    private void showLandNote(Note currentNote) {
-//        requireActivity().getSupportFragmentManager()
-//                .beginTransaction()
-//                .replace(R.id.note_fragment_land, NoteFragment.newInstance(currentNote))
-//                .commit();
-//    }
-//
-//    private void showPortNote(Note currentNote) {
-//        Intent intent = new Intent();
-//        intent.setClass(getActivity(), NoteActivity.class);
-//        intent.putExtra(NoteFragment.ARG_NOTE, currentNote);
-//        startActivity(intent);
-//    }
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        isLandscape = getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE;
+
+        if (isLandscape){
+            showLandNote(currentNote);
+        }
+
+        if (savedInstanceState != null){
+            currentNote = savedInstanceState.getParcelable(CURRENT_NOTE);
+        } else {
+            currentNote = new Note(currentNote.getTitle(), currentNote.getDescription(), currentNote.getDate());
+            showNote(currentNote);
+        }
+    }
+
+    private void showNote(Note note){
+        if (isLandscape) {
+            showLandNote(note);
+        } else {
+            showPortNote(note);
+        }
+    }
+
+    private void showLandNote(Note currentNote) {
+        requireActivity().getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.note_fragment_land, NoteFragment.newInstance(currentNote))
+                .commit();
+    }
+
+    private void showPortNote(Note currentNote) {
+        Intent intent = new Intent();
+        intent.setClass(getActivity(), NoteActivity.class);
+        intent.putExtra(NoteFragment.ARG_NOTE, currentNote);
+        startActivity(intent);
+    }
 
 }
