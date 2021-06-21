@@ -149,7 +149,11 @@ public class NoteListFragment extends Fragment {
                     }
                 });
         AlertDialog alertDialog = builder.create();
-        alertDialog.show();
+        alertDialog.show()
+       
+
+
+
     }
 
     private void initView(View view) {
